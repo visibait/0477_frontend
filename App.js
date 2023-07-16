@@ -26,8 +26,6 @@ const StackTheme = {
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    Montserrat: require("./assets/fonts/Montserrat-Regular.ttf"),
-    "Montserrat-Light": require("./assets/fonts/Montserrat-Light.ttf"),
     "Montserrat-Medium": require("./assets/fonts/Montserrat-Medium.ttf"),
     "Montserrat-SemiBold": require("./assets/fonts/Montserrat-SemiBold.ttf"),
     "Montserrat-Bold": require("./assets/fonts/Montserrat-Bold.ttf"),
@@ -41,7 +39,7 @@ export default function App() {
   }, [fontsLoaded]);
 
   if (!fontsLoaded) {
-    return null; // Return null or a loading indicator while the fonts are being loaded or permission is being requested
+    return null;
   }
 
   return (
