@@ -74,7 +74,7 @@ export default function App() {
       } else {
         setTicketName("");
         setTicketType("");
-        setTicketStatus(`INVALID TICKET ❌ - ${result.message}`);
+        setTicketStatus(`INVALID TCKT ❌ - ${result.message}`);
         setTicketStatusBool(false);
       }
 
@@ -133,6 +133,8 @@ export default function App() {
         <Text style={styles.scannerOverlayText}>
           {scanned ? "Scanned!" : "Scanning..."}
         </Text>
+
+        <Text style={styles.brandingText}>#0477GROUP</Text>
 
         <TouchableOpacity
           style={styles.scannerOverlayButton}
@@ -244,6 +246,13 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontFamily: "Montserrat-SemiBold",
     top: 150,
+  },
+  brandingText: {
+    position: "absolute",
+    color: "#fff",
+    fontSize: 20,
+    fontFamily: "Montserrat-Bold",
+    top: 60,
   },
   scannerOverlayButton: {
     position: "absolute",
