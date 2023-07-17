@@ -2,16 +2,19 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   Text,
+  Vibration,
   View,
   Animated,
   TouchableOpacity,
 } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { Feather, Ionicons } from "@expo/vector-icons";
+import { Audio } from "expo-av";
 
 const HomeScreen = ({ navigation }) => {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
+  const [sound, setSound] = useState(null);
 
   const animation = useRef(new Animated.Value(0)).current;
   const footerAnimation = useRef(new Animated.Value(0)).current;
@@ -23,6 +26,22 @@ const HomeScreen = ({ navigation }) => {
     })();
   }, []);
 
+  useEffect(() => {
+    const loadSound = async () => {
+      const { sound } = await Audio.Sound.createAsync(
+        require("../assets/sounds/scan.mp3")
+      );
+      setSound(sound);
+    };
+
+    loadSound();
+
+    return () => {
+      // Unload the sound when the component unmounts
+      sound && sound.unloadAsync();
+    };
+  }, []);
+
   const [ticketName, setTicketName] = useState("");
   const [ticketType, setTicketType] = useState("");
   const [ticketStatus, setTicketStatus] = useState("");
@@ -30,6 +49,11 @@ const HomeScreen = ({ navigation }) => {
   const handleBarCodeScanned = async ({ data }) => {
     if (scanned) return;
     setScanned(true);
+
+    // Play the sound and vibrate the phone
+    sound && sound.replayAsync();
+    Vibration.vibrate();
+
     const ticketId = data.replace("0477GROUP:", "");
 
     try {
@@ -125,7 +149,7 @@ const HomeScreen = ({ navigation }) => {
             navigation.navigate("Search");
           }}
         >
-          <Feather name="search" size={20 } color="#fff" />
+          <Feather name="search" size={20} color="#fff" />
         </TouchableOpacity>
 
         <View style={styles.scannerOverlay}>

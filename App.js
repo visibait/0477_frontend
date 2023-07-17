@@ -4,11 +4,14 @@ import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import HomeScreen from "./screens/HomeScreen";
 import SearchScreen from "./screens/SearchScreen";
 
-LogBox.ignoreLogs(["Sending `onAnimatedValueUpdate` with no listeners registered.",]);
+LogBox.ignoreLogs([
+  "Sending `onAnimatedValueUpdate` with no listeners registered.",
+]);
 
 SplashScreen.preventAutoHideAsync();
 
@@ -29,7 +32,7 @@ export default function App() {
     "Montserrat-Medium": require("./assets/fonts/Montserrat-Medium.ttf"),
     "Montserrat-SemiBold": require("./assets/fonts/Montserrat-SemiBold.ttf"),
     "Montserrat-Bold": require("./assets/fonts/Montserrat-Bold.ttf"),
-    "SlipStream": require("./assets/fonts/Slipstream.ttf"),
+    SlipStream: require("./assets/fonts/Slipstream.ttf"),
   });
 
   const onLayoutRootView = useCallback(async () => {
@@ -44,17 +47,19 @@ export default function App() {
 
   return (
     <NavigationContainer theme={StackTheme}>
-      <View style={styles.appContainer} onLayout={onLayoutRootView}>
-        <Stack.Navigator
-          initialRouteName="Home"
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="Search" component={SearchScreen} />
-        </Stack.Navigator>
-      </View>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <View style={styles.appContainer} onLayout={onLayoutRootView}>
+          <Stack.Navigator
+            initialRouteName="Home"
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="Search" component={SearchScreen} />
+          </Stack.Navigator>
+        </View>
+      </GestureHandlerRootView>
     </NavigationContainer>
   );
 }
