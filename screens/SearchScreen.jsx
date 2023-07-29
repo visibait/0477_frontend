@@ -19,7 +19,7 @@ const SearchScreen = ({ navigation }) => {
   const loadTickets = async () => {
     try {
       const response = await fetch(
-        "https://0477backend-production.up.railway.app/api/tickets/all"
+        "https://tickets-0477-f41cae969513.herokuapp.com/api/tickets/all"
       );
       const result = await response.json();
 
@@ -32,13 +32,38 @@ const SearchScreen = ({ navigation }) => {
 
           return {
             id: _id,
+            type: "ticket",
             name: fullName,
             status: ticketStatus,
             redeemed,
           };
         });
 
-        setTicketList(newTicketList);
+        const listResponse = await fetch(
+          "https://tickets-0477-f41cae969513.herokuapp.com/api/list/all"
+        );
+        const listResult = await listResponse.json();
+
+        if (listResult.success) {
+          const { users } = listResult;
+
+          // create the final list of tickets
+          const newUserList = Object.keys(users).map((userId) => {
+            const { _id, fullName, paid } = users[userId];
+            const listStatus = paid ? "PAID ✅" : "NOT PAID ❌";
+
+            return {
+              id: _id,
+              type: "list",
+              name: fullName,
+              status: listStatus,
+              paid,
+            };
+          });
+
+          const finalList = [...newTicketList, ...newUserList];
+          setTicketList(finalList);
+        }
       }
     } catch (error) {
       console.log("error: ", error);
@@ -53,7 +78,7 @@ const SearchScreen = ({ navigation }) => {
     if (!ticketId) return;
     try {
       const response = await fetch(
-        "https://0477backend-production.up.railway.app/api/tickets/redeem",
+        "https://tickets-0477-f41cae969513.herokuapp.com/api/tickets/redeem",
         {
           method: "POST",
           headers: {
@@ -75,6 +100,35 @@ const SearchScreen = ({ navigation }) => {
       return loadTickets();
     } catch (error) {
       alert("Error redeeming ticket!");
+      return loadTickets();
+    }
+  };
+
+  const userPaid = async (userId) => {
+    if (!userId) return;
+    try {
+      const response = await fetch(
+        "https://tickets-0477-f41cae969513.herokuapp.com/api/list/paid",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: userId,
+          }),
+        }
+      );
+      const result = await response.json();
+      if (result.success) {
+        alert("User paid succesfully!");
+        return loadTickets();
+      }
+
+      alert("Error paying user!");
+      return loadTickets();
+    } catch (error) {
+      alert("Error paying user!");
       return loadTickets();
     }
   };
@@ -108,7 +162,9 @@ const SearchScreen = ({ navigation }) => {
           />
         </View>
       </View>
-      <ScrollView>
+      <ScrollView
+        style={styles.ticketList}
+      >
         <View style={styles.ticketContainer}>
           {ticketList
             .filter((ticket) => {
@@ -124,25 +180,46 @@ const SearchScreen = ({ navigation }) => {
               return ticketName.includes(query);
             })
             .map((ticket, i) => {
-              return (
-                <View key={i} style={styles.ticket}>
-                  <Text style={styles.ticketText}>{ticket.name} - </Text>
-                  <Text style={styles.ticketText}>{ticket.status}</Text>
+              if (ticket.type === "ticket") {
+                return (
+                  <View key={i} style={styles.ticket}>
+                    <Text style={styles.ticketText}>{ticket.name} - </Text>
+                    <Text style={styles.ticketText}>{ticket.status}</Text>
 
-                  {!ticket.redeemed && (
-                    <TouchableOpacity
-                      style={styles.redeemButton}
-                      onPress={() => {
-                        redeemTicket(ticket.id);
-                      }}
-                    >
-                      <Text style={styles.redeemButtonText}>Redeem</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              );
+                    {!ticket.redeemed && (
+                      <TouchableOpacity
+                        style={styles.redeemButton}
+                        onPress={() => {
+                          redeemTicket(ticket.id);
+                        }}
+                      >
+                        <Text style={styles.redeemButtonText}>Redeem</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                );
+              } else {
+                return (
+                  <View key={i} style={styles.ticket}>
+                    <Text style={styles.ticketText}>{ticket.name} - </Text>
+                    <Text style={styles.ticketText}>{ticket.status}</Text>
+
+                    {!ticket.paid && (
+                      <TouchableOpacity
+                        style={styles.redeemButton}
+                        onPress={() => {
+                          userPaid(ticket.id);
+                        }}
+                      >
+                        <Text style={styles.redeemButtonText}>Paid</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                );
+              }
             })}
         </View>
+        <View style={{ height: 200 }}/>
       </ScrollView>
     </View>
   );

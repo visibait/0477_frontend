@@ -58,7 +58,7 @@ const HomeScreen = ({ navigation }) => {
 
     try {
       const response = await fetch(
-        "https://0477backend-production.up.railway.app/api/tickets/redeem",
+        "https://tickets-0477-f41cae969513.herokuapp.com/api/tickets/redeem",
         {
           method: "POST",
           headers: {
